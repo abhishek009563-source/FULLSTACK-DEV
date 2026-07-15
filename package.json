@@ -1,0 +1,20 @@
+{
+  "name": "ant-kanban-board",
+  "version": "1.0.0",
+  "description": "A simple, premium full-stack Kanban task manager",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "kanban",
+    "express",
+    "full-stack",
+    "todo"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

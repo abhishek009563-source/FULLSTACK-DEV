@@ -1,0 +1,72 @@
+[
+  {
+    "id": "1",
+    "title": "Welcome to your Kanban Board! 🚀",
+    "description": "This is a card. You can edit this task, change its priority, move it to another column, or delete it.",
+    "status": "todo",
+    "priority": "medium",
+    "category": "Work",
+    "dueDate": "2026-07-15",
+    "createdAt": "2026-07-13T15:27:36.439Z"
+  },
+  {
+    "id": "2",
+    "title": "Develop Backend API",
+    "description": "Build Express endpoints for creating, reading, updating, and deleting tasks.",
+    "status": "inprogress",
+    "priority": "high",
+    "category": "Development",
+    "dueDate": "2026-07-13",
+    "createdAt": "2026-07-13T15:27:36.440Z"
+  },
+  {
+    "id": "3",
+    "title": "Design Premium UI Layout",
+    "description": "Create an attractive Dark Theme glassmorphic interface with fluid transitions.",
+    "status": "done",
+    "priority": "high",
+    "category": "Design",
+    "dueDate": "2026-07-13",
+    "createdAt": "2026-07-13T15:27:36.440Z"
+  },
+  {
+    "id": "1783956928228",
+    "title": "Test",
+    "description": "",
+    "priority": "medium",
+    "category": "General",
+    "dueDate": "",
+    "status": "todo",
+    "createdAt": "2026-07-13T15:35:28.237Z"
+  },
+  {
+    "id": "1783956985084",
+    "title": "Test Task via Browser Subagent",
+    "description": "This task was created by the automated browser subagent to verify full-stack functionality.",
+    "priority": "medium",
+    "category": "Testing",
+    "dueDate": "",
+    "status": "todo",
+    "createdAt": "2026-07-13T15:36:25.084Z"
+  },
+  {
+    "id": "1783957025664",
+    "title": "Test Priority Arrow",
+    "description": "",
+    "priority": "high",
+    "category": "General",
+    "dueDate": "",
+    "status": "todo",
+    "createdAt": "2026-07-13T15:37:05.664Z"
+  },
+  {
+    "id": "1783957088232",
+    "title": "Test Task via Browser Subagent",
+    "description": "This task was created by the automated browser subagent to verify full-stack functionality.",
+    "priority": "high",
+    "category": "Testing",
+    "dueDate": "",
+    "status": "todo",
+    "createdAt": "2026-07-13T15:38:08.232Z"
+  }
+]
