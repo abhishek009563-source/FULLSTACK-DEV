@@ -9,5 +9,13 @@ module.exports = {
       case 'work': return '#16a34a'; // Green
       default: return '#4b5563'; // Gray
     }
+  },
+  getPriorityColor: (priority) => {
+    switch (priority.toLowerCase()) {
+      case 'high': return '#dc2626'; // Red
+      case 'medium': return '#d97706'; // Amber
+      case 'low': return '#059669'; // Emerald
+      default: return '#6b7280'; // Gray
+    }
   }
 };
