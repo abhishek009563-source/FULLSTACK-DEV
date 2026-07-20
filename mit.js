@@ -17,5 +17,10 @@ module.exports = {
       case 'low': return '#059669'; // Emerald
       default: return '#6b7280'; // Gray
     }
+  },
+  formatDueDate: (dateString) => {
+    if (!dateString) return 'No due date';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 };
