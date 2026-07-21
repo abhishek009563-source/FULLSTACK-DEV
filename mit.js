@@ -22,5 +22,9 @@ module.exports = {
     if (!dateString) return 'No due date';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  },
+  truncateText: (str, maxLength = 50) => {
+    if (!str || str.length <= maxLength) return str || '';
+    return str.substring(0, maxLength) + '...';
   }
 };
