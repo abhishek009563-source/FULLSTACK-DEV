@@ -16,8 +16,16 @@ if (fs.existsSync(dataDir)) {
 
 console.log(`Checking tasks file: ${tasksFile}`);
 if (fs.existsSync(tasksFile)) {
-  const tasks = JSON.parse(fs.readFileSync(tasksFile, 'utf8'));
-  console.log(`✅ Tasks file exists. Found ${tasks.length} tasks.`);
+  try {
+    const tasks = JSON.parse(fs.readFileSync(tasksFile, 'utf8'));
+    console.log(`✅ Tasks file exists. Found ${tasks.length} tasks.`);
+  } catch (e) {
+    console.log("❌ Tasks file exists but has invalid JSON content.");
+  }
 } else {
   console.log("❌ Tasks file is missing.");
 }
+
+console.log(`Checking port availability...`);
+const PORT = process.env.PORT || 3000;
+console.log(`👉 Configured PORT is ${PORT}`);
