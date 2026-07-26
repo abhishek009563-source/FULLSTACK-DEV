@@ -3,11 +3,22 @@ console.log("Running Kanban Board startup checks...");
 
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 const dataDir = path.join(__dirname, 'data');
 const tasksFile = path.join(dataDir, 'tasks.json');
 const serverFile = path.join(__dirname, 'server.js');
 const indexFile = path.join(__dirname, 'public', 'index.html');
+
+function getSystemInfo() {
+  return {
+    nodeVersion: process.version,
+    platform: process.platform,
+    arch: process.arch,
+    memoryUsageMB: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+    uptimeSeconds: Math.floor(process.uptime())
+  };
+}
 
 function runStartupChecks() {
   let isHealthy = true;
@@ -54,6 +65,9 @@ function runStartupChecks() {
   const PORT = process.env.PORT || 3000;
   console.log(`👉 Configured PORT is ${PORT}`);
 
+  const sysInfo = getSystemInfo();
+  console.log(`💻 Node ${sysInfo.nodeVersion} (${sysInfo.platform}/${sysInfo.arch}) - Heap: ${sysInfo.memoryUsageMB}MB`);
+
   console.log(isHealthy ? "🚀 Overall Status: HEALTHY" : "⚠️ Overall Status: ISSUES DETECTED");
   return isHealthy;
 }
@@ -62,4 +76,4 @@ if (require.main === module) {
   runStartupChecks();
 }
 
-module.exports = { runStartupChecks };
+module.exports = { runStartupChecks, getSystemInfo };
