@@ -9,6 +9,19 @@ const dataDir = path.join(__dirname, 'data');
 const tasksFile = path.join(dataDir, 'tasks.json');
 const serverFile = path.join(__dirname, 'server.js');
 const indexFile = path.join(__dirname, 'public', 'index.html');
+const packageFile = path.join(__dirname, 'package.json');
+
+function getAppVersion() {
+  try {
+    if (fs.existsSync(packageFile)) {
+      const pkg = JSON.parse(fs.readFileSync(packageFile, 'utf8'));
+      return { name: pkg.name || 'ant-kanban-board', version: pkg.version || '1.0.0' };
+    }
+  } catch (err) {
+    console.error('Error reading package.json:', err);
+  }
+  return { name: 'ant-kanban-board', version: '1.0.0' };
+}
 
 function getSystemInfo() {
   return {
@@ -22,6 +35,9 @@ function getSystemInfo() {
 
 function runStartupChecks() {
   let isHealthy = true;
+
+  const appMeta = getAppVersion();
+  console.log(`📦 Application: ${appMeta.name} v${appMeta.version}`);
 
   console.log(`Checking data directory: ${dataDir}`);
   if (fs.existsSync(dataDir)) {
@@ -76,4 +92,4 @@ if (require.main === module) {
   runStartupChecks();
 }
 
-module.exports = { runStartupChecks, getSystemInfo };
+module.exports = { runStartupChecks, getSystemInfo, getAppVersion };
