@@ -33,6 +33,12 @@ function getSystemInfo() {
   };
 }
 
+function validateTaskSchema(task) {
+  if (!task || typeof task !== 'object') return false;
+  const requiredFields = ['id', 'title', 'status'];
+  return requiredFields.every(field => field in task && typeof task[field] === 'string' && task[field].trim() !== '');
+}
+
 function runStartupChecks() {
   let isHealthy = true;
 
@@ -51,7 +57,8 @@ function runStartupChecks() {
   if (fs.existsSync(tasksFile)) {
     try {
       const tasks = JSON.parse(fs.readFileSync(tasksFile, 'utf8'));
-      console.log(`✅ Tasks file exists. Found ${tasks.length} tasks.`);
+      const validCount = Array.isArray(tasks) ? tasks.filter(validateTaskSchema).length : 0;
+      console.log(`✅ Tasks file exists. Found ${tasks.length} total tasks (${validCount} valid schema).`);
     } catch (e) {
       console.log("❌ Tasks file exists but has invalid JSON content.");
       isHealthy = false;
@@ -92,4 +99,4 @@ if (require.main === module) {
   runStartupChecks();
 }
 
-module.exports = { runStartupChecks, getSystemInfo, getAppVersion };
+module.exports = { runStartupChecks, getSystemInfo, getAppVersion, validateTaskSchema };
