@@ -39,6 +39,16 @@ function validateTaskSchema(task) {
   return requiredFields.every(field => field in task && typeof task[field] === 'string' && task[field].trim() !== '');
 }
 
+function formatHealthReport() {
+  const isHealthy = runStartupChecks();
+  return {
+    timestamp: new Date().toISOString(),
+    status: isHealthy ? 'HEALTHY' : 'UNHEALTHY',
+    app: getAppVersion(),
+    system: getSystemInfo()
+  };
+}
+
 function runStartupChecks() {
   let isHealthy = true;
 
@@ -99,4 +109,4 @@ if (require.main === module) {
   runStartupChecks();
 }
 
-module.exports = { runStartupChecks, getSystemInfo, getAppVersion, validateTaskSchema };
+module.exports = { runStartupChecks, getSystemInfo, getAppVersion, validateTaskSchema, formatHealthReport };
