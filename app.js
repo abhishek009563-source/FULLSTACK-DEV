@@ -39,13 +39,36 @@ function validateTaskSchema(task) {
   return requiredFields.every(field => field in task && typeof task[field] === 'string' && task[field].trim() !== '');
 }
 
+function getTaskStatistics() {
+  try {
+    if (fs.existsSync(tasksFile)) {
+      const tasks = JSON.parse(fs.readFileSync(tasksFile, 'utf8'));
+      if (Array.isArray(tasks)) {
+        const stats = { total: tasks.length, todo: 0, inprogress: 0, done: 0, unknown: 0 };
+        tasks.forEach(task => {
+          if (task && task.status && Object.prototype.hasOwnProperty.call(stats, task.status)) {
+            stats[task.status]++;
+          } else {
+            stats.unknown++;
+          }
+        });
+        return stats;
+      }
+    }
+  } catch (err) {
+    console.error('Error calculating task statistics:', err);
+  }
+  return { total: 0, todo: 0, inprogress: 0, done: 0, unknown: 0 };
+}
+
 function formatHealthReport() {
   const isHealthy = runStartupChecks();
   return {
     timestamp: new Date().toISOString(),
     status: isHealthy ? 'HEALTHY' : 'UNHEALTHY',
     app: getAppVersion(),
-    system: getSystemInfo()
+    system: getSystemInfo(),
+    tasks: getTaskStatistics()
   };
 }
 
@@ -69,6 +92,8 @@ function runStartupChecks() {
       const tasks = JSON.parse(fs.readFileSync(tasksFile, 'utf8'));
       const validCount = Array.isArray(tasks) ? tasks.filter(validateTaskSchema).length : 0;
       console.log(`✅ Tasks file exists. Found ${tasks.length} total tasks (${validCount} valid schema).`);
+      const taskStats = getTaskStatistics();
+      console.log(`📊 Task Metrics: ${taskStats.total} total (${taskStats.todo} todo, ${taskStats.inprogress} in-progress, ${taskStats.done} done)`);
     } catch (e) {
       console.log("❌ Tasks file exists but has invalid JSON content.");
       isHealthy = false;
@@ -109,4 +134,4 @@ if (require.main === module) {
   runStartupChecks();
 }
 
-module.exports = { runStartupChecks, getSystemInfo, getAppVersion, validateTaskSchema, formatHealthReport };
+module.exports = { runStartupChecks, getSystemInfo, getAppVersion, validateTaskSchema, formatHealthReport, getTaskStatistics };
