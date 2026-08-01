@@ -83,6 +83,25 @@ function getTaskPriorityBreakdown() {
   return { high: 0, medium: 0, low: 0, unspecified: 0 };
 }
 
+function getTaskCategoryBreakdown() {
+  try {
+    if (fs.existsSync(tasksFile)) {
+      const tasks = JSON.parse(fs.readFileSync(tasksFile, 'utf8'));
+      if (Array.isArray(tasks)) {
+        const categoryStats = {};
+        tasks.forEach(task => {
+          const category = (task && typeof task.category === 'string' && task.category.trim()) ? task.category.trim() : 'Uncategorized';
+          categoryStats[category] = (categoryStats[category] || 0) + 1;
+        });
+        return categoryStats;
+      }
+    }
+  } catch (err) {
+    console.error('Error calculating task category breakdown:', err);
+  }
+  return {};
+}
+
 function formatHealthReport() {
   const isHealthy = runStartupChecks();
   return {
@@ -91,7 +110,8 @@ function formatHealthReport() {
     app: getAppVersion(),
     system: getSystemInfo(),
     tasks: getTaskStatistics(),
-    priorities: getTaskPriorityBreakdown()
+    priorities: getTaskPriorityBreakdown(),
+    categories: getTaskCategoryBreakdown()
   };
 }
 
@@ -119,6 +139,9 @@ function runStartupChecks() {
       console.log(`📊 Task Metrics: ${taskStats.total} total (${taskStats.todo} todo, ${taskStats.inprogress} in-progress, ${taskStats.done} done)`);
       const priorityStats = getTaskPriorityBreakdown();
       console.log(`🎯 Priority Breakdown: ${priorityStats.high} high, ${priorityStats.medium} medium, ${priorityStats.low} low`);
+      const categoryStats = getTaskCategoryBreakdown();
+      const categoriesSummary = Object.entries(categoryStats).map(([cat, count]) => `${cat}: ${count}`).join(', ');
+      console.log(`🏷️ Category Breakdown: ${categoriesSummary || 'None'}`);
     } catch (e) {
       console.log("❌ Tasks file exists but has invalid JSON content.");
       isHealthy = false;
@@ -159,5 +182,6 @@ if (require.main === module) {
   runStartupChecks();
 }
 
-module.exports = { runStartupChecks, getSystemInfo, getAppVersion, validateTaskSchema, formatHealthReport, getTaskStatistics, getTaskPriorityBreakdown };
+module.exports = { runStartupChecks, getSystemInfo, getAppVersion, validateTaskSchema, formatHealthReport, getTaskStatistics, getTaskPriorityBreakdown, getTaskCategoryBreakdown };
+
 
