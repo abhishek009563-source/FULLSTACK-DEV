@@ -102,6 +102,25 @@ function getTaskCategoryBreakdown() {
   return {};
 }
 
+function getOverdueTasksSummary() {
+  try {
+    if (fs.existsSync(tasksFile)) {
+      const tasks = JSON.parse(fs.readFileSync(tasksFile, 'utf8'));
+      if (Array.isArray(tasks)) {
+        const today = new Date().toISOString().split('T')[0];
+        const overdue = tasks.filter(task => task && task.status !== 'done' && task.dueDate && task.dueDate < today);
+        return {
+          count: overdue.length,
+          taskIds: overdue.map(t => t.id)
+        };
+      }
+    }
+  } catch (err) {
+    console.error('Error calculating overdue tasks summary:', err);
+  }
+  return { count: 0, taskIds: [] };
+}
+
 function formatHealthReport() {
   const isHealthy = runStartupChecks();
   return {
@@ -111,7 +130,8 @@ function formatHealthReport() {
     system: getSystemInfo(),
     tasks: getTaskStatistics(),
     priorities: getTaskPriorityBreakdown(),
-    categories: getTaskCategoryBreakdown()
+    categories: getTaskCategoryBreakdown(),
+    overdue: getOverdueTasksSummary()
   };
 }
 
@@ -142,6 +162,8 @@ function runStartupChecks() {
       const categoryStats = getTaskCategoryBreakdown();
       const categoriesSummary = Object.entries(categoryStats).map(([cat, count]) => `${cat}: ${count}`).join(', ');
       console.log(`🏷️ Category Breakdown: ${categoriesSummary || 'None'}`);
+      const overdueStats = getOverdueTasksSummary();
+      console.log(`⏰ Overdue Tasks: ${overdueStats.count}`);
     } catch (e) {
       console.log("❌ Tasks file exists but has invalid JSON content.");
       isHealthy = false;
@@ -182,6 +204,7 @@ if (require.main === module) {
   runStartupChecks();
 }
 
-module.exports = { runStartupChecks, getSystemInfo, getAppVersion, validateTaskSchema, formatHealthReport, getTaskStatistics, getTaskPriorityBreakdown, getTaskCategoryBreakdown };
+module.exports = { runStartupChecks, getSystemInfo, getAppVersion, validateTaskSchema, formatHealthReport, getTaskStatistics, getTaskPriorityBreakdown, getTaskCategoryBreakdown, getOverdueTasksSummary };
+
 
 
