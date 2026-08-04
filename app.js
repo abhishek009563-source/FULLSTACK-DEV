@@ -121,6 +121,26 @@ function getOverdueTasksSummary() {
   return { count: 0, taskIds: [] };
 }
 
+function getTaskCompletionRate() {
+  try {
+    if (fs.existsSync(tasksFile)) {
+      const tasks = JSON.parse(fs.readFileSync(tasksFile, 'utf8'));
+      if (Array.isArray(tasks) && tasks.length > 0) {
+        const doneCount = tasks.filter(task => task && task.status === 'done').length;
+        const ratePercentage = Math.round((doneCount / tasks.length) * 100);
+        return {
+          total: tasks.length,
+          completed: doneCount,
+          ratePercentage
+        };
+      }
+    }
+  } catch (err) {
+    console.error('Error calculating task completion rate:', err);
+  }
+  return { total: 0, completed: 0, ratePercentage: 0 };
+}
+
 function formatHealthReport() {
   const isHealthy = runStartupChecks();
   return {
@@ -131,7 +151,8 @@ function formatHealthReport() {
     tasks: getTaskStatistics(),
     priorities: getTaskPriorityBreakdown(),
     categories: getTaskCategoryBreakdown(),
-    overdue: getOverdueTasksSummary()
+    overdue: getOverdueTasksSummary(),
+    completionRate: getTaskCompletionRate()
   };
 }
 
@@ -164,6 +185,8 @@ function runStartupChecks() {
       console.log(`🏷️ Category Breakdown: ${categoriesSummary || 'None'}`);
       const overdueStats = getOverdueTasksSummary();
       console.log(`⏰ Overdue Tasks: ${overdueStats.count}`);
+      const rateStats = getTaskCompletionRate();
+      console.log(`📈 Completion Rate: ${rateStats.ratePercentage}% (${rateStats.completed}/${rateStats.total})`);
     } catch (e) {
       console.log("❌ Tasks file exists but has invalid JSON content.");
       isHealthy = false;
@@ -204,7 +227,7 @@ if (require.main === module) {
   runStartupChecks();
 }
 
-module.exports = { runStartupChecks, getSystemInfo, getAppVersion, validateTaskSchema, formatHealthReport, getTaskStatistics, getTaskPriorityBreakdown, getTaskCategoryBreakdown, getOverdueTasksSummary };
+module.exports = { runStartupChecks, getSystemInfo, getAppVersion, validateTaskSchema, formatHealthReport, getTaskStatistics, getTaskPriorityBreakdown, getTaskCategoryBreakdown, getOverdueTasksSummary, getTaskCompletionRate };
 
 
 
