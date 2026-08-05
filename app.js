@@ -141,6 +141,27 @@ function getTaskCompletionRate() {
   return { total: 0, completed: 0, ratePercentage: 0 };
 }
 
+function getUpcomingTasksSummary(daysAhead = 7) {
+  try {
+    if (fs.existsSync(tasksFile)) {
+      const tasks = JSON.parse(fs.readFileSync(tasksFile, 'utf8'));
+      if (Array.isArray(tasks)) {
+        const today = new Date().toISOString().split('T')[0];
+        const futureDate = new Date(Date.now() + daysAhead * 86400000).toISOString().split('T')[0];
+        const upcoming = tasks.filter(task => task && task.status !== 'done' && task.dueDate && task.dueDate >= today && task.dueDate <= futureDate);
+        return {
+          count: upcoming.length,
+          daysAhead,
+          taskIds: upcoming.map(t => t.id)
+        };
+      }
+    }
+  } catch (err) {
+    console.error('Error calculating upcoming tasks summary:', err);
+  }
+  return { count: 0, daysAhead, taskIds: [] };
+}
+
 function formatHealthReport() {
   const isHealthy = runStartupChecks();
   return {
@@ -152,7 +173,8 @@ function formatHealthReport() {
     priorities: getTaskPriorityBreakdown(),
     categories: getTaskCategoryBreakdown(),
     overdue: getOverdueTasksSummary(),
-    completionRate: getTaskCompletionRate()
+    completionRate: getTaskCompletionRate(),
+    upcoming: getUpcomingTasksSummary()
   };
 }
 
@@ -187,6 +209,8 @@ function runStartupChecks() {
       console.log(`⏰ Overdue Tasks: ${overdueStats.count}`);
       const rateStats = getTaskCompletionRate();
       console.log(`📈 Completion Rate: ${rateStats.ratePercentage}% (${rateStats.completed}/${rateStats.total})`);
+      const upcomingStats = getUpcomingTasksSummary();
+      console.log(`📅 Upcoming Tasks (7 days): ${upcomingStats.count}`);
     } catch (e) {
       console.log("❌ Tasks file exists but has invalid JSON content.");
       isHealthy = false;
@@ -227,7 +251,7 @@ if (require.main === module) {
   runStartupChecks();
 }
 
-module.exports = { runStartupChecks, getSystemInfo, getAppVersion, validateTaskSchema, formatHealthReport, getTaskStatistics, getTaskPriorityBreakdown, getTaskCategoryBreakdown, getOverdueTasksSummary, getTaskCompletionRate };
+module.exports = { runStartupChecks, getSystemInfo, getAppVersion, validateTaskSchema, formatHealthReport, getTaskStatistics, getTaskPriorityBreakdown, getTaskCategoryBreakdown, getOverdueTasksSummary, getTaskCompletionRate, getUpcomingTasksSummary };
 
 
 
