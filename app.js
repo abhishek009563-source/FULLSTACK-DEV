@@ -162,6 +162,35 @@ function getUpcomingTasksSummary(daysAhead = 7) {
   return { count: 0, daysAhead, taskIds: [] };
 }
 
+function getTaskAgeDistribution() {
+  try {
+    if (fs.existsSync(tasksFile)) {
+      const tasks = JSON.parse(fs.readFileSync(tasksFile, 'utf8'));
+      if (Array.isArray(tasks)) {
+        const now = Date.now();
+        const distribution = { new: 0, recent: 0, aging: 0, unspecified: 0 };
+        tasks.forEach(task => {
+          if (task && task.status !== 'done') {
+            if (task.createdAt) {
+              const ageMs = now - new Date(task.createdAt).getTime();
+              const ageDays = ageMs / (1000 * 60 * 60 * 24);
+              if (ageDays < 1) distribution.new++;
+              else if (ageDays <= 7) distribution.recent++;
+              else distribution.aging++;
+            } else {
+              distribution.unspecified++;
+            }
+          }
+        });
+        return distribution;
+      }
+    }
+  } catch (err) {
+    console.error('Error calculating task age distribution:', err);
+  }
+  return { new: 0, recent: 0, aging: 0, unspecified: 0 };
+}
+
 function formatHealthReport() {
   const isHealthy = runStartupChecks();
   return {
@@ -174,7 +203,8 @@ function formatHealthReport() {
     categories: getTaskCategoryBreakdown(),
     overdue: getOverdueTasksSummary(),
     completionRate: getTaskCompletionRate(),
-    upcoming: getUpcomingTasksSummary()
+    upcoming: getUpcomingTasksSummary(),
+    ageDistribution: getTaskAgeDistribution()
   };
 }
 
@@ -211,6 +241,8 @@ function runStartupChecks() {
       console.log(`📈 Completion Rate: ${rateStats.ratePercentage}% (${rateStats.completed}/${rateStats.total})`);
       const upcomingStats = getUpcomingTasksSummary();
       console.log(`📅 Upcoming Tasks (7 days): ${upcomingStats.count}`);
+      const ageStats = getTaskAgeDistribution();
+      console.log(`⏳ Active Task Age: ${ageStats.new} new (<1d), ${ageStats.recent} recent (1-7d), ${ageStats.aging} aging (>7d)`);
     } catch (e) {
       console.log("❌ Tasks file exists but has invalid JSON content.");
       isHealthy = false;
@@ -251,7 +283,7 @@ if (require.main === module) {
   runStartupChecks();
 }
 
-module.exports = { runStartupChecks, getSystemInfo, getAppVersion, validateTaskSchema, formatHealthReport, getTaskStatistics, getTaskPriorityBreakdown, getTaskCategoryBreakdown, getOverdueTasksSummary, getTaskCompletionRate, getUpcomingTasksSummary };
+module.exports = { runStartupChecks, getSystemInfo, getAppVersion, validateTaskSchema, formatHealthReport, getTaskStatistics, getTaskPriorityBreakdown, getTaskCategoryBreakdown, getOverdueTasksSummary, getTaskCompletionRate, getUpcomingTasksSummary, getTaskAgeDistribution };
 
 
 
